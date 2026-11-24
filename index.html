@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Simulate factoring a number with a spectral comb of phase-shifted pulses and interference.">
+<title>Factoring with a pulse comb</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<h1>Factoring with a pulse comb</h1>
+<p class="lead">A train of phase-shifted light pulses is added up by interference. The sum is bright only when the trial divisor l divides N, so the bright lines of the spectrum are the factors.</p>
+
+<section class="panel">
+ <div class="row">
+  <label>Number N (any size, up to 2000 digits)<input id="n" type="text" inputmode="numeric" value="15251" style="width:min(420px,80vw)"></label>
+  <label>Scan l up to<input id="cap" type="number" min="100" max="200000" value="20000"></label>
+  <label>Pulses in the comb: <span id="mv" class="mono">9</span><input id="m" type="range" min="3" max="40" value="8"></label>
+  <label>Pulse phase noise: <span id="sv" class="mono">0.00 rad</span><input id="s" type="range" min="0" max="150" value="0"></label>
+  <label>Phase pattern<select id="mode"><option value="2">Gauss sum (m²)</option><option value="1">Fourier sum (m)</option></select></label>
+  <button id="rr">Re-roll noise</button>
+ </div>
+ <div class="pre">Try:
+  <button data-n="105">105</button><button data-n="391">391</button><button data-n="4087">4087</button><button data-n="15251">15251</button><button data-n="8191">8191 (prime)</button><button data-n="9973000069811">9973 × 1000000007</button><button data-n="998244359987710471">998244353 × 1000000007</button>
+ </div>
+</section>
+
+<section class="panel">
+ <div id="status"></div>
+ <div id="chips" class="chips"></div>
+ <p id="info" class="note" style="margin:8px 0 0"></p>
+</section>
+
+<section class="panel">
+ <h2>Detector spectrum</h2>
+ <p class="note">Intensity |A(l)|² for every trial divisor l from 2 to N/2. Click the plot to inspect a value of l.</p>
+ <canvas id="spec"></canvas>
+ <div class="key"><span><i class="sw" style="background:var(--base)"></i>dark (cancelled)</span><span><i class="sw" style="background:var(--peak)"></i>bright and a true divisor</span><span><i class="sw" style="background:var(--ghost)"></i>bright but not a divisor (ghost)</span></div>
+</section>
+
+<section class="panel">
+ <h2>One trial divisor, up close</h2>
+ <div class="row" style="margin-bottom:12px">
+  <label>Trial divisor l: <span id="lv" class="mono"></span><input id="l" type="range" min="2" max="100" value="2" style="width:min(420px,80vw)"></label>
+  <button id="sw" class="go">Sweep l</button>
+ </div>
+ <div class="two">
+  <div><canvas id="ph"></canvas></div>
+  <div>
+   <p id="ro" class="mono"></p>
+   <canvas id="pu"></canvas>
+   <p class="note" style="margin-top:6px">Left: each pulse adds one unit step to the total field, drawn tip to tail. Right: the colour of each pulse is its phase at the detector. A divisor makes every pulse the same colour and the steps line up in a straight line.</p>
+  </div>
+ </div>
+</section>
+
+<section class="panel">
+ <h2>Frequency view, out to infinity</h2>
+ <p class="note">Write u = N/l, so the scanned frequency is proportional to 1/l. The comb’s spectrum is periodic in u with period 1: bright teeth sit at every whole number, with smaller fractional revivals between them. Dashed lines mark where the selected l lands in each period.</p>
+ <label>Periods shown: <span id="kv" class="mono">4</span><input id="k" type="range" min="1" max="12" value="4"></label>
+ <canvas id="fq"></canvas>
+ <p id="fr" class="mono"></p>
+ <p class="note">Past the last period the pattern repeats exactly, so going to infinite frequency adds no new information: l is a factor exactly when u = N/l falls on a tooth. A real comb has finite bandwidth, so this endless repetition is the mathematical limit, not something hardware reaches.</p>
+</section>
+
+<section class="panel">
+ <h2>Speed test: comb readout against trial division</h2>
+ <p class="note">Runs the simulated comb (using the pulse count and phase pattern set above) and plain trial division on the same numbers N = p × q, with p and q close together. Both scan l = 2 up to the smaller factor p. Times are measured in your browser.</p>
+ <button id="bb" class="go">Run benchmark</button>
+ <div class="tw"><table id="bt"></table></div>
+ <p id="bn" class="note"></p>
+</section>
+
+<section class="panel">
+ <h2>The physics in three steps</h2>
+ <p>1. A pulse shaper delays pulse m so that its phase at the detector is 2π·m²·N/l. In real experiments the scan over l is done by tuning the optical frequency or the delays.</p>
+ <p>2. The detector adds the fields of all pulses: A(l) = (1/(M+1)) Σ exp(−2πi·m²·N/l). This is ordinary wave addition, and the page computes exactly this sum.</p>
+ <p>3. If l divides N, N/l is a whole number, every phase is a multiple of 2π, and all pulses arrive in step (|A|² = 1). Otherwise the phases scatter and the pulses largely cancel.</p>
+ <p class="note">Limits worth seeing for yourself: with few pulses, ghost factors appear; with phase noise, real peaks sink below the threshold. The pulse count and timing precision must grow with the size of N, so this is a demonstrator for small numbers and no threat to RSA. Similar experiments with femtosecond pulse trains have factored numbers such as 15251.</p>
+</section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
